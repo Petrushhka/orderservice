@@ -1,5 +1,6 @@
 package com.playdata.orderservice.user.entity;
 
+import com.playdata.orderservice.common.entity.Address;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,8 +25,12 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default // builder 패턴 사용해서 객체 초기화 시에 전달한 값으로 세팅해줌
-    private Role role;
+    @Embedded // @Embeddable로 선언된 값 대입 (기본 생성자가 필수, 기본생성자가없으면 사용 못함.)
+    private Address address;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default // builder 패턴 사용해서 객체 초기화 시에 초기값으로 세팅
+    private Role role = Role.USER;
+
+    
 }
