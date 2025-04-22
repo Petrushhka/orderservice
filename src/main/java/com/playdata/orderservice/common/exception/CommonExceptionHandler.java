@@ -15,8 +15,8 @@ public class CommonExceptionHandler {
     // 메서드를 상위 계층으로 전파합니다.
 
     // 옳지 않은 입력값 전달 시 호출되는 메서드
-    @ExceptionHandler(IllegalAccessException.class)
-    public ResponseEntity<?> illegalHandler(IllegalAccessException e) {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> illegalHandler(IllegalArgumentException e) {
         e.printStackTrace();
         CommonErrorDto errorDto = new CommonErrorDto(HttpStatus.BAD_REQUEST, e.getMessage());
         return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
