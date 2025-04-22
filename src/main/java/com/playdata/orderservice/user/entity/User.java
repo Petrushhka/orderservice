@@ -3,7 +3,8 @@ package com.playdata.orderservice.user.entity;
 import com.playdata.orderservice.common.entity.Address;
 import jakarta.persistence.*;
 import lombok.*;
-
+// Entity에 Setter를 구현하지 않은 이유는 Entity 자체가 DB와 연동하기 위한 객체이기 때문이다.
+// DB에 삽입되는 데이터, DB에서 조회된 데이터는 그 자체로 사용하고 수정되지 않게끔 Setter를 사용하지 않는 것을 권장.
 @Getter
 @ToString
 @NoArgsConstructor
