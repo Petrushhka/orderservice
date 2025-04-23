@@ -1,6 +1,5 @@
 package com.playdata.orderservice.common.entity;
 
-
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;

@@ -1,5 +1,7 @@
 package com.playdata.orderservice.common.configs;
 
+import com.playdata.orderservice.common.auth.JwtAuthFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -7,12 +9,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // 권한 검사를 컨트롤러의 메서드에서 전역적으로 수행하기 위한 설정.
+@EnableMethodSecurity
+@RequiredArgsConstructor// 권한 검사를 컨트롤러의 메서드에서 전역적으로 수행하기 위한 설정.
 public class SecurityConfig {
+    // 필터 등록을 위해서 객체가 필요 -> 빈 등록된 객체를 자동 주입;
+    private final JwtAuthFilter jwtAuthFilter;
 
     // security 기본 설정 ( 권한 처리, 초기 로그인 화면 없애기 등등...)
     @Bean // 이 메서드가 리턴하는 시큐리티 설정을 빈으로 등록하겠다.
@@ -33,8 +39,14 @@ public class SecurityConfig {
         }));
         // "/user/creat", "/user/doLogin" 은 인증 검사가 필요 없다고 설정했고
         // 나머지 요청들은 권한 검사가 필요하다고 세팅 했습니다.
-        // 권한 검사가 필요한 요청들을 어던 필터로 검사할지를 추가해 주면 됩니다.
+        // 권한 검사가 필요한 요청들을 어떤 필터로 검사할지를 추가해 주면 됩니다.
 
+        // 스프링 security가 기본으로 세팅하는 여러가지 필터가 있음
+        // 내가 직접만든 커스텀 필터가 해당 필터를 대체할 것이기 때문에, 그 기본 필터 전에 수행하게 하는 과정.
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        //설정한 HttpSecurity 객체를 기반으로 security 설정 구축 및 반환.
+        return http.build();
     }
 
 }

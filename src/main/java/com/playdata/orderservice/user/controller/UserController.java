@@ -20,6 +20,7 @@ public class UserController {
     // 빈 등록된 서비스 객체를 자동으로 주입받자!
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+
     /*
      프론트 단에서 회원 가입 요청 보낼때 함께 보내는 데이터 (JSON) -> dto로 받자!!!!!
      {
@@ -34,7 +35,7 @@ public class UserController {
      }
      */
     @PostMapping("/create")
-    public ResponseEntity<?> userCreate(@Valid @RequestBody UserSaveReqDto dto){
+    public ResponseEntity<?> userCreate(@Valid @RequestBody UserSaveReqDto dto) {
         //화면단에서 전달된 데이터를 DB에 넣자.
         // 혹시 이메일이 중복되었는가? -> 이미 이전에 회원가입을 한 회원이라면 거절.
         // dto를 DB로 바로 때려? -> dto를 entity로 바꾸는 로직 추가
@@ -49,14 +50,14 @@ public class UserController {
     }
 
     @PostMapping("/doLogin")
-    public ResponseEntity<?> doLogin(@RequestBody UserLoginReqDto dto){
+    public ResponseEntity<?> doLogin(@RequestBody UserLoginReqDto dto) {
         User user = userService.login(dto);
 
         // 회원 정보가 일치한다면 -> 로그인 성공.
         // 로그인 유지를 해 주고 싶다.
         // 백엔드는 요청이 들어왔을 때 이 사람이 이전에 로그인 성공 한 사람인지 알 수가 없음.
         // 징표를 하나 만들어 주겠다. -> JWT를 발급해서 클라이언트에게 전달해 주겠다!
-        String token = jwtTokenProvider.createToken(user.getEmail(), user.getPassword());
+        String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole().toString());
         CommonResDto resDto = new CommonResDto(HttpStatus.OK, "Login Successful!", token);
 
         return new ResponseEntity<>(resDto, HttpStatus.OK);
@@ -64,20 +65,10 @@ public class UserController {
 
     //회원 정보 조회 (마이페이지) -> 로그인 한 회원만이 요청할 수 있습니다.
     @GetMapping("/myInfo")
-    public ResponseEntity<?> getMyInfo(){
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public ResponseEntity<?> getMyInfo() {
+        userService.myInfo();
+        System.out.println("/user/myInfo: GET");
+        return null;
     }
 
 }

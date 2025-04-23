@@ -1,5 +1,6 @@
 package com.playdata.orderservice.user.service;
 
+import com.playdata.orderservice.common.auth.TokenUserInfo;
 import com.playdata.orderservice.user.dto.UserLoginReqDto;
 import com.playdata.orderservice.user.dto.UserSaveReqDto;
 import com.playdata.orderservice.user.entity.User;
@@ -7,6 +8,7 @@ import com.playdata.orderservice.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -46,6 +48,18 @@ public class UserService {
         if(!user.getPassword().equals(dto.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다!");
         }
+
+        return user;
+    }
+
+    public void myInfo() {
+        TokenUserInfo userInfo
+               // 필터에서 세팅한 시큐리티 인증 정보를 불러오는 메서드
+                = (TokenUserInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        userRepository.findByEmail(userInfo.getEmail()).orElseThrow(
+                ()-> new EntityNotFoundException("user Not Found!")
+        );
 
         return user;
     }
