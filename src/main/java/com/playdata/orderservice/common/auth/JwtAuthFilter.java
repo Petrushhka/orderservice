@@ -36,10 +36,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // 요청과 함께 전달된 JWT를 얻어와야 합니다.
         // JWT는 클라이언트 단에서 요청 헤더에 담겨져서 전달됩니다.
         // 요청과 함께 전달된 토큰을 요청 헤더에서 꺼내기.
-
         String token = parseBearerToken(request);
-        if (token != null) {
-            try {
+        System.out.println("token = " + token);
+        try {
+
+            if (token != null) {
+
                 // 토큰이 null이 아니면 이 토큰이 유효한지 검사하자.
                 TokenUserInfo userInfo = jwtTokenProvider.validateAndGetTokenUserInfo(token);
                 // spring security에게 전달할 인가 정보 리스트를 생성. (권한 정보)
@@ -62,19 +64,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 // 인증 정보를 전역적으로 어느 컨테이너, 어느 서비스에서나 활용할 수 있도록 미리 저장.
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-            } catch (Exception e) {
-                // 토큰 검증 과정에서 문제가 발생한다면 catch문이 실행될거예요.
-                e.printStackTrace();
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\":\"" + e.getMessage() + "\"}");
             }
-        }
 
-        // 필터를 통과하는 메서드(doFilter를 호출하지 않으면 필터 통과가 안됩니다!)
-        // if(token != null) 바깥쪽으로 뺏습니다.
-        // 일단 토큰이 있든 없든 필터를 토오가해서 security한테 검사는 받아야하니깐.
-        filterChain.doFilter(request, response);
+            // 필터를 통과하는 메서드(doFilter를 호출하지 않으면 필터 통과가 안됩니다!)
+            // if(token != null) 바깥쪽으로 뺏습니다.
+            // 일단 토큰이 있든 없든 필터를 토오가해서 security한테 검사는 받아야하니깐.
+            filterChain.doFilter(request, response);
+
+        } catch (Exception e) {
+            // 토큰 검증 과정에서 문제가 발생한다면 catch문이 실행될거예요.
+            e.printStackTrace();
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"" + e.getMessage() + "\"}");
+        }
     }
 
     private String parseBearerToken(HttpServletRequest request) {

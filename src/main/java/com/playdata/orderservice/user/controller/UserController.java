@@ -1,8 +1,10 @@
 package com.playdata.orderservice.user.controller;
 
 import com.playdata.orderservice.common.auth.JwtTokenProvider;
+import com.playdata.orderservice.common.dto.CommonErrorDto;
 import com.playdata.orderservice.common.dto.CommonResDto;
 import com.playdata.orderservice.user.dto.UserLoginReqDto;
+import com.playdata.orderservice.user.dto.UserResDto;
 import com.playdata.orderservice.user.dto.UserSaveReqDto;
 import com.playdata.orderservice.user.entity.User;
 import com.playdata.orderservice.user.service.UserService;
@@ -10,7 +12,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -63,12 +69,28 @@ public class UserController {
         return new ResponseEntity<>(resDto, HttpStatus.OK);
     }
 
+    // 회원 정보 조회(관리자 전용) -> ADMIN만 회원 전체 목록을 조회할 수 있다.
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/list")
+    //Controller 파라미터 Pageable 선언하면 페이징 파라미터 처리를 쉽게 할 수 있음.
+    // 요청 시 쿼리스트링이 전달되지 않으면 기본값 0, 20, unsorted
+    public ResponseEntity<?> getUserList(Pageable pageable) {
+        System.out.println("Admin만 이 출력문 볼 수 있음!");
+        // /list?number=1&size=10&sort=name,desc 요런 식으로.
+        // /list?number=1&size=10&sort=name,desc 요런 식으로.
+        List<UserResDto> dtoList = userService.userList(pageable);
+        CommonResDto resDto = new CommonResDto(HttpStatus.OK, "userList 조회 성공!", dtoList);
+        return ResponseEntity.ok().body(resDto);
+    }
+
     //회원 정보 조회 (마이페이지) -> 로그인 한 회원만이 요청할 수 있습니다.
+    //일반 회원 전용
     @GetMapping("/myInfo")
     public ResponseEntity<?> getMyInfo() {
-        userService.myInfo();
-        System.out.println("/user/myInfo: GET");
-        return null;
+       UserResDto dto =  userService.myInfo();
+        CommonResDto resDto
+                = new CommonResDto(HttpStatus.OK, "My Info 조회성공", dto);
+        return new ResponseEntity<>(resDto, HttpStatus.OK);
     }
 
 }

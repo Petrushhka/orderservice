@@ -2,16 +2,21 @@ package com.playdata.orderservice.user.service;
 
 import com.playdata.orderservice.common.auth.TokenUserInfo;
 import com.playdata.orderservice.user.dto.UserLoginReqDto;
+import com.playdata.orderservice.user.dto.UserResDto;
 import com.playdata.orderservice.user.dto.UserSaveReqDto;
 import com.playdata.orderservice.user.entity.User;
 import com.playdata.orderservice.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service // @Component 해도 되는데 서비스 게층이니깐..
 @RequiredArgsConstructor
@@ -45,22 +50,41 @@ public class UserService {
                 () -> new EntityNotFoundException("user Not Found!")
         );
         // 비밀번호 확인하기
-        if(!user.getPassword().equals(dto.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다!");
+        if (!user.getPassword().equals(dto.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다!" + dto.getPassword() + "유저 비번: " + user.getPassword());
         }
 
         return user;
     }
 
-    public void myInfo() {
+    public UserResDto myInfo() {
         TokenUserInfo userInfo
-               // 필터에서 세팅한 시큐리티 인증 정보를 불러오는 메서드
-                = (TokenUserInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                // 필터에서 세팅한 시큐리티 인증 정보를 불러오는 메서드
+                = (TokenUserInfo) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
 
-        userRepository.findByEmail(userInfo.getEmail()).orElseThrow(
-                ()-> new EntityNotFoundException("user Not Found!")
-        );
+        User user = userRepository.findByEmail(userInfo.getEmail())
+                .orElseThrow(
+                        () -> new EntityNotFoundException("User not found!")
+                );
 
-        return user;
+        return user.fromEntity();
     }
+
+
+    public List<UserResDto> userList(Pageable pageable) {
+        // Pageable 객체를 직접 생성할 피룡 없다. -> 컨트롤러가 보내줌.
+
+        Page<User> users = userRepository.findAll(pageable);
+
+        //실질적 데이터
+        List<User> content = users.getContent();
+
+        List<UserResDto> dtoList = content.stream()
+                .map(user -> user.fromEntity())
+                .collect(Collectors.toList());
+
+        return dtoList;
+    }
+
 }
