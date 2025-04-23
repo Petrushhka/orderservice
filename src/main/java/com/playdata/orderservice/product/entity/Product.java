@@ -1,6 +1,7 @@
 package com.playdata.orderservice.product.entity;
 
 import com.playdata.orderservice.common.entity.BaseTypeEntity;
+import com.playdata.orderservice.product.dto.ProductResDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,18 @@ public class Product extends BaseTypeEntity {
     private String category;
     private int price;
     private int stockQuantity;
+    @Setter // 이미지 경로를 위해서만 setter 세팅
     private String imagePath;
 
+    public ProductResDto fromEntity(){
+        return ProductResDto.builder()
+                .id(id)
+                .name(name)
+                .category(category)
+                .price(price)
+                .stockQuantity(stockQuantity)
+                .imagePath(imagePath)
+                .build();
+    }
 
 }
