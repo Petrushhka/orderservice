@@ -20,7 +20,7 @@ class ProductRepositoryTest {
     private ProductRepository productRepository;
 
     @Test
-    @DisplayName("dfdfd")
+    @DisplayName("벌크데이터")
     void bulkInsert() {
         // given
         for (int i = 0; i < 50; i++) {

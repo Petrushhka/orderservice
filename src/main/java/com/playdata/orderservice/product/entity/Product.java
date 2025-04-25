@@ -21,6 +21,7 @@ public class Product extends BaseTypeEntity {
     private String name;
     private String category;
     private int price;
+    @Setter
     private int stockQuantity;
     @Setter // 이미지 경로를 위해서만 setter 세팅
     private String imagePath;
