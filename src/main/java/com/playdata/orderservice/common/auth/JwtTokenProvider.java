@@ -23,7 +23,7 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private int expiration;
 
-    @Value("${jwt.secretKeyRt")
+    @Value("${jwt.secretKeyRt}")
     private String secretKeyRt;
 
     @Value("${jwt.expirationRt}")
