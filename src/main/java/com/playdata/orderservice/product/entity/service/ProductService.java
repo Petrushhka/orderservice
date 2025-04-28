@@ -2,6 +2,7 @@ package com.playdata.orderservice.product.entity.service;
 
 import com.playdata.orderservice.product.dto.ProductResDto;
 import com.playdata.orderservice.product.dto.ProductSaveReqDto;
+import com.playdata.orderservice.product.dto.ProductSearchDto;
 import com.playdata.orderservice.product.entity.Product;
 import com.playdata.orderservice.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -50,9 +51,16 @@ public class ProductService {
         return productRepository.save(product);
 
     }
+    public List<ProductResDto> productList(ProductSearchDto dto, Pageable pageable) {
+        Page<Product> products;
+        if (dto.getCategory() == null) {
+            products = productRepository.findAll(pageable);
+        } else if (dto.getCategory().equals("name")) {
+            products = productRepository.findByNameValue(dto.getSearchName(), pageable);
+        } else {
+            products = productRepository.findByCategoryValue(dto.getSearchName(), pageable);
+        }
 
-    public List<ProductResDto> productList(Pageable pageable) {
-        Page<Product> products = productRepository.findAll(pageable);
 
         List<Product> content = products.getContent();
 
